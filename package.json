@@ -5,7 +5,6 @@
   "description": "find your repo locaion",
   "icon": "logo.png",
   "author": "wan-kong",
-  "owner": "yike",
   "license": "MIT",
   "commands": [
     {
