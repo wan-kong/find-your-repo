@@ -11,11 +11,13 @@ import {
 } from "@raycast/api";
 import { useEffect, useState } from "react";
 import { findMatchingRepositories, FoundRepo, SearchOptions } from "./repo";
+import { OpenMethod, openMethods } from "./utils/open-with";
 
 interface Preferences {
   maxDepth: string;
   excludeDirs: string;
   searchPath: string;
+  defaultOpenMethod: string;
 }
 
 interface Arguments {
@@ -36,6 +38,7 @@ export default function FindYourRepo(props: LaunchProps<{ arguments: Arguments }
   };
 
   const searchPath = preferences.searchPath || process.env.HOME || "/Users";
+  const defaultOpenMethod = preferences.defaultOpenMethod || "cursor";
 
   const handleSearch = async () => {
     if (!gitUrl.trim()) {
@@ -62,6 +65,16 @@ export default function FindYourRepo(props: LaunchProps<{ arguments: Arguments }
       setIsLoading(false);
     }
   };
+  const tryOpen = (method: OpenMethod, path: string) => {
+    try {
+      method.open(path);
+    } catch (error) {
+      console.error("打开错误:", error);
+      showToast(Toast.Style.Failure, "错误", "打开失败");
+    }
+  };
+  const defaultMethod = openMethods.find((method) => method.value === defaultOpenMethod);
+  const otherMethods = openMethods.filter((method) => method.value !== defaultOpenMethod);
 
   useEffect(() => {
     handleSearch();
@@ -114,19 +127,22 @@ export default function FindYourRepo(props: LaunchProps<{ arguments: Arguments }
               accessories={[{ text: `${repo.remotes.length} remote(s)` }]}
               actions={
                 <ActionPanel>
-                  <Action.ShowInFinder icon={Icon.Finder} title="在 Finder 中打开" path={repo.path} />
-                  <Action.OpenWith icon={Icon.Terminal} title="在终端中打开" path={repo.path} />
-                  <Action.CopyToClipboard title="复制路径" content={repo.path} />
-                  {/* <Action
-                                    icon={Icon.AppWindow}
-                                    title="在Cursor中打开"
-                                    onAction={() => openInCursor(repo.path)}
-                                />
-                                <Action
-                                    icon={Icon.AppWindow}
-                                    title="在PyCharm中打开"
-                                    onAction={() => openInPyCharm(repo.path)}
-                                /> */}
+                  {defaultMethod && (
+                    <Action
+                      key={defaultMethod.value}
+                      icon={defaultMethod.icon}
+                      title={`${defaultMethod.title}`}
+                      onAction={() => tryOpen(defaultMethod, repo.path)}
+                    />
+                  )}
+                  {otherMethods.map((method) => (
+                    <Action
+                      key={method.value}
+                      icon={method.icon}
+                      title={`${method.title}`}
+                      onAction={() => tryOpen(method, repo.path)}
+                    />
+                  ))}
                   <Action icon={Icon.RotateAntiClockwise} title="重新搜索" onAction={() => setSearchPerformed(false)} />
                 </ActionPanel>
               }

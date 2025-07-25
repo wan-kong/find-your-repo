@@ -4,6 +4,7 @@
   "title": "Find Your Repo",
   "description": "find your repo locaion",
   "icon": "logo.png",
+  "type": "module",
   "author": "wan-kong",
   "license": "MIT",
   "commands": [
@@ -47,6 +48,36 @@
       "type": "textfield",
       "default": "node_modules,.venv,venv,__pycache__,.next,dist,build",
       "required": false
+    },
+    {
+      "name": "defaultOpenMethod",
+      "title": "首选打开项",
+      "description": "设置默认打开的app",
+      "type": "dropdown",
+      "required": false,
+      "default": "cursor",
+      "data": [
+        {
+          "title": "Cursor",
+          "value": "cursor"
+        },
+        {
+          "title": "PyCharm",
+          "value": "pycharm"
+        },
+        {
+          "title": "Terminal",
+          "value": "terminal"
+        },
+        {
+          "title": "Finder",
+          "value": "finder"
+        },
+        {
+          "title": "Copy Path",
+          "value": "copy"
+        }
+      ]
     }
   ],
   "dependencies": {
